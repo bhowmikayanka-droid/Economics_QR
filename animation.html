@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Animation website</title>
+    <style>
+        /* Base Styles & Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Header & Cart */
+        header {
+            background: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fc8019; /* Swiggy-like orange */
+        }
+        #cartBtn {
+            background: #fff;
+            border: 2px solid #60b246;
+            color: #60b246;
+            padding: 8px 16px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #cartBtn:hover {
+            background: #60b246;
+            color: white;
+        }
+
+        /* Menu Section */
+        .menu-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .item-details h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        .item-details p {
+            color: #686b78;
+            font-weight: bold;
+        }
+        .item-image-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        .item-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            background: white;
+        }
+        .item-image-container img:hover {
+            transform: scale(1.05);
+        }
+        .add-btn {
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            color: #60b246;
+            border: 1px solid #d4d5d9;
+            padding: 8px 25px;
+            font-weight: 800;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background 0.2s;
+            z-index: 2;
+        }
+        .add-btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .place-order-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+        #placeOrderBtn {
+            background: #fc8019;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(252, 128, 25, 0.4);
+            transition: transform 0.2s;
+        }
+        #placeOrderBtn:active {
+            transform: scale(0.95);
+        }
+
+        /* --- Modal (Item Details & Cart) Styles --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            position: relative;
+            animation: modalFadeIn 0.3s ease-out;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-content img {
+            width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #888;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-btn:hover {
+            color: #333;
+        }
+        .modal-details {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .modal-details h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: #282c3f;
+        }
+        .modal-details h3 {
+            font-size: 18px;
+            color: #686b78;
+            margin-bottom: 12px;
+        }
+        .modal-details p {
+            color: #535665;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        /* General Buttons inside modals */
+        .modal-action-btn {
+            width: 100%;
+            background: #60b246;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .modal-action-btn:hover {
+            background: #4a9134;
+        }
+        .btn-orange {
+            background: #fc8019;
+        }
+        .btn-orange:hover {
+            background: #e06c10;
+        }
+
+        /* Cart Specific Styles */
+        .cart-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 15px;
+            color: #3d4152;
+        }
+        .cart-row:last-child {
+            border-bottom: none;
+        }
+        .cart-empty-msg {
+            text-align: center;
+            color: #93959f;
+            font-style: italic;
+            padding: 30px 0;
+            font-size: 16px;
+        }
+        #cartItemsList {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding-right: 5px; /* for scrollbar */
+        }
+
+        /* Animation Section (Scroll Driven) */
+        #animation-section {
+            display: none;
+            height: 400vh;
+            position: relative;
+            background: #e9ecef;
+        }
+        
+        .sticky-scene {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding-bottom: 100px;
+        }
+
+        .instructions {
+            position: absolute;
+            top: 20%;
+            width: 100%;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #555;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Road and Path */
+        .road {
+            position: absolute;
+            bottom: 50px;
+            width: 100%;
+            height: 4px;
+            background: #ccc;
+        }
+        .dashed-path {
+            position: absolute;
+            bottom: 50px;
+            left: 100px;
+            width: calc(100% - 200px);
+            height: 4px;
+            border-bottom: 4px dashed #fc8019;
+            transform-origin: left;
+            transform: scaleX(0);
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Graphics (Using Emojis/CSS for simplicity and scale) */
+        .graphic {
+            position: absolute;
+            font-size: 80px;
+            bottom: 50px;
+            transition: transform 0.1s ease-out, opacity 0.3s;
+        }
+
+        #warehouse { left: 20px; z-index: 2; }
+        #house { right: 20px; z-index: 2; }
+        #bike { left: 100px; z-index: 3; transform: translateX(0); }
+        #package { left: 50px; bottom: 80px; font-size: 40px; z-index: 4; opacity: 0; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Flip Zone</div>
+        <button id="cartBtn">
+            <span>🛒 Cart</span>
+            <span id="cartCount">(0)</span>
+        </button>
+    </header>
+
+    <section class="menu-container" id="menu-section">
+        
+        <div class="menu-item">
+            <div class="item-details">
+                <h3>I-Phone 17 Pro max</h3>
+                <p>₹ 1,49,999</p>
+            </div>
+            <div class="item-image-container">
+                <img src="https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcS394EbpUa1WVHCbVaYATyBIBm3E3NWREo9xsG-GScV-BSIUAo3" alt="I-Phone 17 Pro max" onclick="openItemModal('I-Phone 17 Pro max', '₹ 1,49,999', 149999, this.src, 'Experience the cutting-edge technology with the all-new iPhone 17 Pro Max. Features a revolutionary camera system, A18 Pro chip, and aerospace-grade titanium design.')">
+                <button class="add-btn" onclick="addToCart('I-Phone 17 Pro max', 149999)">ADD +</button>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <div class="item-details">
+                <h3>Samsung S26 Ultra</h3>
+                <p>₹ 1,39,999</p>
+            </div>
+            <div class="item-image-container">
+                <img src="https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRbFpXmQfDKuPp_cGvVXL7H4wQsPj99AXth-8572T8g2cJSw74KZwh5IHUeFMGX_KJZUtSzoasqDXdCkBsm-aEBOD0s8eWwE5fA5c2nGMP9Spq2Rle7wjmuwg" alt="Samsung S26 Ultra" onclick="openItemModal('Samsung S26 Ultra', '₹ 1,39,999', 139999, this.src, 'Unleash ultimate productivity and creativity with the Samsung S26 Ultra. Comes with an embedded S-Pen, an incredible 200MP camera setup, and an ultra-bright AMOLED display.')">
+                <button class="add-btn" onclick="addToCart('Samsung S26 Ultra', 139999)">ADD +</button>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <div class="item-details">
+                <h3>Razer Viper V4 Pro Wireless</h3>
+                <p>₹ 14,999</p>
+            </div>
+            <div class="item-image-container">
+                <img src="https://m.media-amazon.com/images/I/51Vqc9mwhLL._AC_UL320_.jpg" alt="Razer Viper V4 Pro" onclick="openItemModal('Razer Viper V4 Pro Wireless', '₹ 14,999', 14999, this.src, 'Dominate the competition with the Razer Viper V4 Pro. Featuring ultra-low latency wireless technology, an advanced optical sensor, and a hyper-lightweight ergonomic shell.')">
+                <button class="add-btn" onclick="addToCart('Razer Viper V4 Pro Wireless', 14999)">ADD +</button>
+            </div>
+        </div>
+
+          <div class="menu-item">
+            <div class="item-details">
+                <h3>ASUS ROG Strix G16 (2025)</h3>
+                <p>₹ 1,30,294</p>
+            </div>
+            <div class="item-image-container">
+                <img src="https://m.media-amazon.com/images/I/81n1T4CYfmL._AC_UL320_.jpg" alt="ASUS ROG Laptop" onclick="openItemModal('ASUS ROG Strix G16 (2025)', '₹ 1,30,294', 130294, this.src, 'Power up your gaming with the ASUS ROG Strix G16. Boasts a stunning 16-inch FHD+ 165Hz display, latest-gen processors, and advanced cooling thermal technology.')">
+                <button class="add-btn" onclick="addToCart('ASUS ROG Strix G16 (2025)', 130294)">ADD +</button>
+            </div>
+        </div>
+
+        <div class="menu-item">
+            <div class="item-details">
+                <h3>Sony WH-1000XM5 Headphones</h3>
+                <p>₹ 29,990</p>
+            </div>
+            <div class="item-image-container">
+                <img src="https://m.media-amazon.com/images/I/61vJtKbAssL._AC_UL320_.jpg" alt="Sony Headphones" onclick="openItemModal('Sony WH-1000XM5 Headphones', '₹ 29,990', 29990, this.src, 'Industry-leading noise cancellation, up to 30 hours of battery life, and superior sound quality. Seamlessly switch between multiple devices with multipoint connection.')">
+                <button class="add-btn" onclick="addToCart('Sony WH-1000XM5 Headphones', 29990)">ADD +</button>
+            </div>
+        </div>
+        
+        <div class="menu-item">
+            <div class="item-details">
+                <h3>Apple Watch Series 9</h3>
+                <p>₹ 41,900</p>
+            </div>
+            <div class="item-image-container">
+                <img src="https://m.media-amazon.com/images/I/81I70qV6cOL._AC_UL320_.jpg" alt="Apple Watch" onclick="openItemModal('Apple Watch Series 9', '₹ 41,900', 41900, this.src, 'The ultimate device for a healthy life. Features the powerful S9 chip, a super-bright edge-to-edge display, and advanced health sensors for ECG and blood oxygen tracking.')">
+                <button class="add-btn" onclick="addToCart('Apple Watch Series 9', 41900)">ADD +</button>
+            </div>
+        </div>
+
+        <div class="place-order-container">
+            <button id="placeOrderBtn">PLACE ORDER</button>
+        </div>
+    </section>
+
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeItemModal()">&times;</span>
+            <img id="modalImg" src="" alt="Item Image">
+            <div class="modal-details">
+                <h2 id="modalTitle">Item Name</h2>
+                <h3 id="modalPrice">Price</h3>
+                <p id="modalDesc">Detailed description goes here.</p>
+            </div>
+            <button id="modalAddBtn" class="modal-action-btn">ADD TO CART</button>
+        </div>
+    </div>
+
+    <div id="cartModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-btn" onclick="closeCartModal()">&times;</span>
+            <div class="modal-details" style="text-align: center;">
+                <h2 style="margin-bottom: 20px;">🛒 Your Order Summary</h2>
+                
+                <div id="cartItemsList">
+                    </div>
+                
+                <hr style="border: none; border-top: 1px solid #eee; margin: 15px 0;">
+                <h2 id="cartTotalDisplay" style="color: #282c3f;">Total: ₹0</h2>
+            </div>
+            <button class="modal-action-btn btn-orange" onclick="closeCartModal()">CONTINUE SHOPPING</button>
+        </div>
+    </div>
+
+    <section id="animation-section">
+        <div class="sticky-scene">
+            <div class="instructions">👇 Scroll down to track your delivery! 👇</div>
+            
+            <div class="road"></div>
+            <div class="dashed-path" id="dashedPath"></div>
+
+            <div class="graphic" id="warehouse">🏭</div>
+            <div class="graphic" id="package">📦</div>
+            <div class="graphic" id="bike">🛵</div>
+            <div class="graphic" id="house">🏠</div>
+        </div>
+    </section>
+
+    <script>
+        // --- 1. Cart Logic ---
+        let cartItems = [];
+        let totalAmount = 0;
+
+        function addToCart(itemName, price) {
+            cartItems.push({ name: itemName, price: price });
+            totalAmount += price;
+            document.getElementById('cartCount').innerText = `(${cartItems.length})`;
+            
+            // Permanent visual feedback on button
+            const btn = event.target;
+            btn.innerText = "ADDED ✓";
+            btn.style.color = "white";
+            btn.style.background = "#60b246";
+            btn.style.border = "1px solid #60b246";
+        }
+
+        // Open Cart Modal Logic
+        document.getElementById('cartBtn').addEventListener('click', () => {
+            const cartItemsList = document.getElementById('cartItemsList');
+            const cartTotalDisplay = document.getElementById('cartTotalDisplay');
+            
+            // Clear previous items
+            cartItemsList.innerHTML = '';
+            
+            if (cartItems.length === 0) {
+                cartItemsList.innerHTML = '<div class="cart-empty-msg">Your cart is empty! Add some awesome gadgets.</div>';
+                cartTotalDisplay.innerText = 'Total: ₹0';
+            } else {
+                cartItems.forEach((item, index) => {
+                    const row = document.createElement('div');
+                    row.className = 'cart-row';
+                    // Create formatted string for each row
+                    row.innerHTML = `
+                        <span style="text-align: left; max-width: 70%;">${index + 1}. ${item.name}</span> 
+                        <span style="font-weight: bold;">₹${item.price.toLocaleString('en-IN')}</span>
+                    `;
+                    cartItemsList.appendChild(row);
+                });
+                cartTotalDisplay.innerText = `Total: ₹${totalAmount.toLocaleString('en-IN')}`;
+            }
+            
+            document.getElementById('cartModal').style.display = 'flex';
+        });
+
+        // --- 2. Modals Shared Logic ---
+        function openItemModal(name, priceStr, priceNum, imgSrc, desc) {
+            document.getElementById('modalTitle').innerText = name;
+            document.getElementById('modalPrice').innerText = priceStr;
+            document.getElementById('modalDesc').innerText = desc;
+            document.getElementById('modalImg').src = imgSrc;
+            
+            const modalAddBtn = document.getElementById('modalAddBtn');
+            modalAddBtn.onclick = function() {
+                cartItems.push({ name: name, price: priceNum });
+                totalAmount += priceNum;
+                document.getElementById('cartCount').innerText = `(${cartItems.length})`;
+                this.innerText = "ADDED ✓";
+                
+                setTimeout(() => {
+                    this.innerText = "ADD TO CART";
+                    closeItemModal();
+                }, 800);
+            };
+            
+            document.getElementById('itemModal').style.display = 'flex';
+        }
+
+        function closeItemModal() {
+            document.getElementById('itemModal').style.display = 'none';
+        }
+
+        function closeCartModal() {
+            document.getElementById('cartModal').style.display = 'none';
+        }
+
+        // Close modals if user clicks outside of the modal content
+        window.onclick = function(event) {
+            const itemModal = document.getElementById('itemModal');
+            const cartModal = document.getElementById('cartModal');
+            
+            if (event.target == itemModal) {
+                closeItemModal();
+            } else if (event.target == cartModal) {
+                closeCartModal();
+            }
+        }
+
+        // --- 3. Place Order & Reveal Animation ---
+        const placeOrderBtn = document.getElementById('placeOrderBtn');
+        const animationSection = document.getElementById('animation-section');
+
+        placeOrderBtn.addEventListener('click', () => {
+            if (cartItems.length === 0) {
+                // Flash the cart button if they try to checkout empty
+                document.getElementById('cartBtn').click();
+                return;
+            }
+            // Hide menu, show animation section
+            document.getElementById('menu-section').style.display = 'none';
+            animationSection.style.display = 'block';
+            
+            // Scroll to the top of the animation section
+            window.scrollTo({
+                top: animationSection.offsetTop,
+                behavior: 'smooth'
+            });
+        });
+
+        // --- 4. Scroll Driven Animation Logic ---
+        window.addEventListener('scroll', () => {
+            if (window.getComputedStyle(animationSection).display === 'none') return;
+
+            const sectionTop = animationSection.offsetTop;
+            const sectionHeight = animationSection.offsetHeight - window.innerHeight;
+            const scrollPosition = window.scrollY - sectionTop;
+            
+            let progress = scrollPosition / sectionHeight;
+            if (progress < 0) progress = 0;
+            if (progress > 1) progress = 1;
+
+            const packageObj = document.getElementById('package');
+            const bike = document.getElementById('bike');
+            const dashedPath = document.getElementById('dashedPath');
+            const instructions = document.querySelector('.instructions');
+
+            instructions.style.opacity = 1 - (progress * 5);
+
+            if (progress < 0.15) {
+                let stage1Progress = progress / 0.15;
+                packageObj.style.opacity = 1;
+                packageObj.style.transform = `translate(${stage1Progress * 80}px, ${-stage1Progress * 20}px)`;
+                
+                bike.style.transform = `translateX(0px)`;
+                dashedPath.style.transform = `scaleX(0)`;
+            } 
+            else if (progress >= 0.15 && progress < 0.85) {
+                let stage2Progress = (progress - 0.15) / 0.70;
+                
+                packageObj.style.opacity = 1;
+                
+                let maxTravelDistance = window.innerWidth - 220; 
+                let currentTravel = stage2Progress * maxTravelDistance;
+                
+                bike.style.transform = `translateX(${currentTravel}px)`;
+                packageObj.style.transform = `translate(${80 + currentTravel}px, -20px)`;
+                dashedPath.style.transform = `scaleX(${stage2Progress})`;
+            }
+            else if (progress >= 0.85) {
+                let stage3Progress = (progress - 0.85) / 0.15;
+                let maxTravelDistance = window.innerWidth - 220;
+                
+                bike.style.transform = `translateX(${maxTravelDistance}px)`;
+                dashedPath.style.transform = `scaleX(1)`;
+                
+                packageObj.style.transform = `translate(${80 + maxTravelDistance + (stage3Progress * 40)}px, ${-20 + (stage3Progress * 20)}px)`;
+                packageObj.style.opacity = 1 - stage3Progress;
+                
+                if (progress === 1) {
+                    instructions.style.opacity = 1;
+                    instructions.innerText = "🎉 Order Delivered Successfully! 🎉";
+                    instructions.style.color = "#60b246";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
